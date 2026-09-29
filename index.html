@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>¡Misión: Nueva Casita! 🐢💚</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome para los iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Fredoka (muy juguetona) y Nunito (legible y tierna) -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'sans': ['Nunito', 'sans-serif'],
+                        'heading': ['Fredoka', 'sans-serif'],
+                    },
+                    colors: {
+                        'turtle-light': '#ecfdf5', // emerald-50
+                        'turtle-mint': '#a7f3d0', // emerald-200
+                        'turtle-green': '#34d399', // emerald-400
+                        'turtle-emerald': '#10b981', // emerald-500
+                        'turtle-dark': '#064e3b', // emerald-900
+                        'leaf-green': '#84cc16' // lime-500
+                    },
+                    animation: {
+                        'bounce-slow': 'bounce 3s infinite',
+                        'float': 'float 3s ease-in-out infinite',
+                        'wiggle': 'wiggle 1s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        },
+                        wiggle: {
+                            '0%, 100%': { transform: 'rotate(-3deg)' },
+                            '50%': { transform: 'rotate(3deg)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            /* Fondo verde muy suave con puntitos divertidos */
+            background-color: #f0fdf4;
+            background-image: radial-gradient(#86efac 2px, transparent 2px);
+            background-size: 30px 30px;
+        }
+        
+        .modal-enter {
+            opacity: 0;
+            transform: scale(0.8) translateY(20px);
+        }
+        .modal-enter-active {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); /* Efecto rebote */
+        }
+        .modal-leave {
+            opacity: 1;
+            transform: scale(1);
+        }
+        .modal-leave-active {
+            opacity: 0;
+            transform: scale(0.9) translateY(10px);
+            transition: all 0.3s ease-in;
+        }
+
+        /* Botón con efecto burbuja */
+        .btn-bubble {
+            box-shadow: 0 10px 0 #059669;
+            transition: all 0.1s;
+        }
+        .btn-bubble:active {
+            box-shadow: 0 0px 0 #059669;
+            transform: translateY(10px);
+        }
+
+        :root {
+            --page: #f6f8f2;
+            --paper: #ffffff;
+            --ink: #20352b;
+            --muted: #66766d;
+            --forest: #174b37;
+            --leaf: #36845c;
+            --line: #dce7dd;
+            --soft: #edf5ee;
+        }
+
+        body {
+            color: var(--ink);
+            background-color: var(--page);
+            background-image:
+                radial-gradient(ellipse at 8% 8%, rgba(119, 166, 123, 0.12), transparent 32rem),
+                linear-gradient(180deg, #edf5ec 0, var(--page) 35rem);
+        }
+
+        .page-hero {
+            padding-top: 3.5rem;
+            padding-bottom: 3rem;
+        }
+
+        .page-hero .max-w-4xl {
+            max-width: 58rem;
+        }
+
+        .turtle-mark {
+            width: 5.5rem;
+            height: 5.5rem;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #d5e5d7;
+            border-radius: 1.5rem;
+            box-shadow: 0 12px 32px rgba(32, 68, 47, 0.1);
+            animation: none;
+        }
+
+        .turtle-mark span {
+            font-size: 3rem;
+        }
+
+        .page-hero h1 {
+            max-width: 52rem;
+            margin: 0 auto 1.5rem;
+            color: var(--forest);
+            font-size: clamp(2.35rem, 5vw, 3.8rem);
+            line-height: 1.08;
+            text-shadow: none;
+        }
+
+        .story-panel {
+            padding: clamp(1.35rem, 4vw, 2.5rem);
+            border: 1px solid var(--line);
+            border-radius: 1.25rem;
+            background: rgba(255, 255, 255, 0.94);
+            box-shadow: 0 18px 45px rgba(35, 67, 46, 0.07);
+        }
+
+        .story-panel h2 {
+            color: var(--forest);
+            font-size: 1.65rem;
+        }
+
+        .story-panel p {
+            color: #52645a;
+            font-size: 1.05rem;
+            line-height: 1.8;
+        }
+
+        .story-callout {
+            border: 1px solid #d7e8d8;
+            border-left: 4px solid var(--leaf);
+            border-radius: 0.75rem;
+            background: var(--soft);
+            text-align: left;
+        }
+
+        .options-wrap {
+            max-width: 70rem;
+        }
+
+        .section-title {
+            margin-bottom: 2.5rem;
+            color: var(--forest);
+            font-size: 2rem;
+        }
+
+        .option-grid {
+            gap: 1.5rem;
+            align-items: stretch;
+        }
+
+        .option-card {
+            min-width: 0;
+            border: 1px solid var(--line);
+            border-bottom: 3px solid var(--leaf) !important;
+            border-radius: 1rem;
+            box-shadow: 0 10px 30px rgba(35, 67, 46, 0.07);
+        }
+
+        .option-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 18px 38px rgba(35, 67, 46, 0.13);
+        }
+
+        .option-card img {
+            height: 13rem;
+            background: #dce9dc;
+        }
+
+        .option-card .level-label {
+            border: 1px solid rgba(32, 53, 43, 0.08);
+            color: var(--forest);
+            letter-spacing: 0.04em;
+        }
+
+        .option-card .option-content {
+            padding: 1.5rem;
+        }
+
+        .option-card h3 {
+            color: var(--forest);
+            font-size: 1.4rem;
+        }
+
+        .option-card p {
+            color: var(--muted);
+            line-height: 1.7;
+        }
+
+        .option-price {
+            border: 1px solid #e6ece6;
+            background: #f7f9f6;
+        }
+
+        .product-link {
+            border: 1px solid #d5dfd6;
+            background: #fff;
+            color: var(--forest);
+        }
+
+        .product-link:hover {
+            border-color: #9cbea2;
+            background: var(--soft);
+        }
+
+        .favorite-label {
+            top: 1rem;
+            right: 1rem;
+            transform: none;
+            border-radius: 0.5rem;
+            background: #fff;
+            color: #4f651e;
+            box-shadow: 0 4px 14px rgba(32, 53, 43, 0.12);
+        }
+
+        .support-section {
+            margin-top: 1rem;
+            padding-top: 3rem;
+            padding-bottom: 3.5rem;
+            background: linear-gradient(180deg, transparent, rgba(222, 237, 222, 0.58));
+        }
+
+        .poll-section {
+            max-width: 70rem;
+            margin: 0 auto;
+            padding: 1rem 0 3rem;
+        }
+
+        .poll-panel {
+            border: 1px solid var(--line);
+            border-radius: 1rem;
+            background: rgba(255, 255, 255, 0.96);
+            box-shadow: 0 12px 32px rgba(35, 67, 46, 0.08);
+        }
+
+        .poll-field {
+            width: 100%;
+            border: 1px solid #cbd8cc;
+            border-radius: 0.65rem;
+            background: #fff;
+            padding: 0.75rem 0.9rem;
+            color: var(--ink);
+        }
+
+        .poll-field:focus {
+            outline: 3px solid rgba(54, 132, 92, 0.2);
+            border-color: var(--leaf);
+        }
+
+        .poll-response {
+            border: 1px solid var(--line);
+            border-radius: 0.75rem;
+            background: #fff;
+        }
+
+        .support-copy {
+            max-width: 42rem;
+            border: 1px solid var(--line);
+            background: rgba(255, 255, 255, 0.86);
+            color: #52645a;
+            line-height: 1.7;
+        }
+
+        .donate-button {
+            min-height: 3.75rem;
+            padding: 0.9rem 1.5rem;
+            border: 0;
+            border-radius: 0.75rem;
+            background: var(--forest);
+            box-shadow: 0 5px 0 #103927;
+            font-size: 1.25rem;
+        }
+
+        .donate-button:hover {
+            background: #226044;
+        }
+
+        .donate-button:active {
+            box-shadow: 0 1px 0 #103927;
+            transform: translateY(4px);
+        }
+
+        .donate-button:focus-visible,
+        .product-link:focus-visible,
+        #donationModal button:focus-visible {
+            outline: 3px solid #9acb84;
+            outline-offset: 3px;
+        }
+
+        .site-footer {
+            border-top: 1px solid #397557;
+            border-radius: 0;
+            background: #173e30;
+        }
+
+        .donation-dialog {
+            border: 1px solid var(--line);
+            border-radius: 1rem;
+        }
+
+        @media (max-width: 640px) {
+            .page-hero {
+                padding-top: 2rem;
+                padding-bottom: 1.5rem;
+            }
+
+            .page-hero h1 {
+                font-size: 2.35rem;
+            }
+
+            .story-panel h2 {
+                font-size: 1.4rem;
+            }
+
+            .option-card .option-content {
+                padding: 1.25rem;
+            }
+
+            .donate-button {
+                width: 100%;
+                max-width: 24rem;
+                font-size: 1.1rem;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                scroll-behavior: auto !important;
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body class="text-gray-800 antialiased min-h-screen flex flex-col font-sans selection:bg-turtle-mint">
+
+    <header class="page-hero pt-16 pb-12 px-4 sm:px-6 lg:px-8 text-center relative overflow-hidden">
+        <div class="max-w-4xl mx-auto relative z-10">
+            
+            <!-- Icono animado -->
+            <div class="turtle-mark inline-block p-5 bg-white rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.12)] mb-6 animate-float border-4 border-turtle-mint">
+                <span class="text-7xl">🐢</span>
+            </div>
+            
+            <h1 class="text-5xl md:text-6xl lg:text-7xl font-heading font-bold text-turtle-dark mb-6 tracking-tight drop-shadow-sm">
+                ¡Misión: Nueva Casita! 🥬✨
+            </h1>
+            
+            <!-- Tarjeta de la historia -->
+            <div class="story-panel bg-white/90 backdrop-blur-sm p-8 md:p-10 rounded-[2.5rem] shadow-xl border-4 border-turtle-mint text-left space-y-5 relative">
+                <!-- Decoración -->
+                <div class="absolute -top-6 -right-6 text-5xl animate-wiggle hidden sm:block">🫧</div>
+                
+                <h2 class="text-3xl font-heading font-bold text-turtle-emerald mb-4 flex items-center gap-3">
+                    <i class="fa-solid fa-leaf"></i> ¡Alerta de Crecimiento!
+                </h2>
+                
+                <p class="text-xl leading-relaxed text-gray-700 font-medium">
+                    ¡Hola a todos! Pongo esta carita de "yo no fui" 🥺 pero la verdad es que... <strong>¡he comido mucha lechuga y crecí demasiado rápido!</strong>
+                </p>
+                <p class="text-lg leading-relaxed text-gray-600">
+                    Mi caparazón ya casi choca con los bordes de mi pecera actual. Antes me parecía un océano gigante, pero ahora apenas puedo dar la vuelta para saludar. Necesito un lugar mucho más espacioso para hacer mis acrobacias subacuáticas y estirar mis patitas bajo el sol. 🌞
+                </p>
+                <div class="story-callout bg-turtle-light p-4 rounded-2xl border-2 border-dashed border-turtle-green text-center">
+                    <p class="text-xl font-heading font-bold text-turtle-dark">
+                        ¿Me ayudas a conseguir un súper tanque para seguir nadando feliz? 💚
+                    </p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow px-4 sm:px-6 lg:px-8 py-8">
+        <div class="options-wrap max-w-6xl mx-auto">
+            <h2 class="section-title text-4xl font-heading font-bold text-center text-turtle-dark mb-12">
+                Opciones de Casitas 🏡🪴
+            </h2>
+            
+            <div class="option-grid grid grid-cols-1 md:grid-cols-2 gap-10">
+                <div class="option-card bg-white rounded-[2rem] shadow-lg overflow-hidden flex flex-col hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 border-b-8 border-leaf-green">
+                    <div class="relative">
+                        <a href="https://www.amazon.com.mx/dp/B0FDB43VJL" target="_blank" rel="noopener noreferrer" aria-label="Ver el kit GOZILLA en Amazon">
+                            <img src="https://m.media-amazon.com/images/I/81Q+d4qAZ8L._AC_SX425_.jpg" alt="Kit GOZILLA de tanque para tortuga con bomba y lámpara" class="w-full h-56 object-contain p-3" loading="lazy">
+                        </a>
+                        <div class="level-label absolute top-4 left-4 bg-white/90 px-3 py-1 rounded-full font-bold text-leaf-green text-sm shadow">Kit completo</div>
+                    </div>
+                    <div class="option-content p-6 flex-grow flex flex-col items-center text-center">
+                        <h3 class="text-2xl font-heading font-bold text-gray-800 mb-3">GOZILLA: tanque, bomba y lámpara</h3>
+                        <p class="text-gray-600 mb-6 flex-grow font-medium">Kit de inicio acrílico de 5 litros con bomba de agua ajustable y lámpara con temporizador.</p>
+                        <div class="w-full mt-auto">
+                            <div class="option-price bg-gray-50 rounded-xl py-3 mb-4">
+                                <span class="block text-2xl font-black text-turtle-dark">$791.12 MXN</span>
+                            </div>
+                            <a href="https://www.amazon.com.mx/dp/B0FDB43VJL" target="_blank" rel="noopener noreferrer" class="product-link flex items-center justify-center w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 px-4 rounded-xl transition-colors border-2 border-gray-200">
+                                <i class="fa-brands fa-amazon text-gray-900 mr-2 text-xl"></i> Ver en Amazon
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="option-card bg-white rounded-[2rem] shadow-lg overflow-hidden flex flex-col hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 border-b-8 border-turtle-emerald">
+                    <div class="relative">
+                        <a href="https://www.amazon.com.mx/dp/B0H4PY63JC" target="_blank" rel="noopener noreferrer" aria-label="Ver el kit YTZPOI en Amazon">
+                            <img src="https://m.media-amazon.com/images/I/71W8k-u96BL._AC_SX425_.jpg" alt="Kit YTZPOI de acuario para tortuga con lámpara solar" class="w-full h-56 object-contain p-3" loading="lazy">
+                        </a>
+                        <div class="level-label absolute top-4 left-4 bg-white/90 px-3 py-1 rounded-full font-bold text-turtle-emerald text-sm shadow">Kit de 7 piezas</div>
+                    </div>
+                    <div class="option-content p-6 flex-grow flex flex-col items-center text-center">
+                        <h3 class="text-2xl font-heading font-bold text-gray-800 mb-3">YTZPOI: kit de tanque pequeño</h3>
+                        <p class="text-gray-600 mb-6 flex-grow font-medium">Acuario acrílico con lámpara solar, plataforma para escalar y zona ajardinada.</p>
+                        <div class="w-full mt-auto">
+                            <div class="option-price bg-gray-50 rounded-xl py-3 mb-4">
+                                <span class="block text-2xl font-black text-turtle-emerald">$1,299.00 MXN</span>
+                            </div>
+                            <a href="https://www.amazon.com.mx/dp/B0H4PY63JC" target="_blank" rel="noopener noreferrer" class="product-link flex items-center justify-center w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 px-4 rounded-xl transition-colors border-2 border-gray-200">
+                                <i class="fa-brands fa-amazon text-gray-900 mr-2 text-xl"></i> Ver en Amazon
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="option-card bg-white rounded-[2rem] shadow-lg overflow-hidden flex flex-col hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 border-b-8 border-turtle-dark">
+                    <div class="relative">
+                        <a href="https://www.amazon.com.mx/dp/B0H1LCQNMY" target="_blank" rel="noopener noreferrer" aria-label="Ver la pecera LICHENXI en Amazon">
+                            <img src="https://m.media-amazon.com/images/I/71NbfVE5L6L._AC_SX425_.jpg" alt="Pecera LICHENXI con lámpara UV regulable y drenaje inferior" class="w-full h-56 object-contain p-3" loading="lazy">
+                        </a>
+                        <div class="level-label absolute top-4 left-4 bg-white/90 px-3 py-1 rounded-full font-bold text-turtle-dark text-sm shadow">44 cm</div>
+                    </div>
+                    <div class="option-content p-6 flex-grow flex flex-col items-center text-center">
+                        <h3 class="text-2xl font-heading font-bold text-gray-800 mb-3">LICHENXI: tanque grande con lámpara UV</h3>
+                        <p class="text-gray-600 mb-6 flex-grow font-medium">Pecera de alta transparencia con lámpara regulable y sistema de drenaje inferior.</p>
+                        <div class="w-full mt-auto">
+                            <div class="option-price bg-gray-50 rounded-xl py-3 mb-4">
+                                <span class="block text-2xl font-black text-turtle-dark">$999.00 MXN</span>
+                            </div>
+                            <a href="https://www.amazon.com.mx/dp/B0H1LCQNMY" target="_blank" rel="noopener noreferrer" class="product-link flex items-center justify-center w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 px-4 rounded-xl transition-colors border-2 border-gray-200">
+                                <i class="fa-brands fa-amazon text-gray-900 mr-2 text-xl"></i> Ver en Amazon
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="option-card bg-white rounded-[2rem] shadow-lg overflow-hidden flex flex-col hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 border-b-8 border-turtle-emerald">
+                    <div class="relative">
+                        <a href="https://www.amazon.com.mx/dp/B0DD6XDN8T" target="_blank" rel="noopener noreferrer" aria-label="Ver el tortuguero Gopnaty en Amazon">
+                            <img src="https://m.media-amazon.com/images/I/51kodZWrH7L._AC_SX425_.jpg" alt="Tortuguero Gopnaty antiescape con bomba de agua" class="w-full h-56 object-contain p-3" loading="lazy">
+                        </a>
+                        <div class="level-label absolute top-4 left-4 bg-white/90 px-3 py-1 rounded-full font-bold text-turtle-emerald text-sm shadow">3 galones</div>
+                    </div>
+                    <div class="option-content p-6 flex-grow flex flex-col items-center text-center">
+                        <h3 class="text-2xl font-heading font-bold text-gray-800 mb-3">Gopnaty: tortuguero antiescape</h3>
+                        <p class="text-gray-600 mb-6 flex-grow font-medium">Tanque transparente con bomba de agua, zonas multifuncionales y diseño para evitar escapes.</p>
+                        <div class="w-full mt-auto">
+                            <div class="option-price bg-gray-50 rounded-xl py-3 mb-4">
+                                <span class="block text-2xl font-black text-turtle-emerald">$699.99 MXN</span>
+                            </div>
+                            <a href="https://www.amazon.com.mx/dp/B0DD6XDN8T" target="_blank" rel="noopener noreferrer" class="product-link flex items-center justify-center w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 px-4 rounded-xl transition-colors border-2 border-gray-200">
+                                <i class="fa-brands fa-amazon text-gray-900 mr-2 text-xl"></i> Ver en Amazon
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <section class="poll-section px-4 sm:px-6 lg:px-8" aria-labelledby="poll-title">
+        <div class="poll-panel p-6 md:p-8">
+            <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-6">
+                <div>
+                    <h2 id="poll-title" class="text-3xl font-heading font-bold text-turtle-dark">¿Cuál casita te gusta más?</h2>
+                    <p class="mt-2 text-gray-600">Déjanos tu voto y una nota para la tortuga.</p>
+                </div>
+                <button id="toggleResponses" type="button" class="product-link inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 font-bold">
+                    <i class="fa-solid fa-users" aria-hidden="true"></i> Ver respuestas
+                </button>
+            </div>
+
+            <form id="pollForm" class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                    <label for="pollName" class="mb-2 block font-bold text-turtle-dark">Tu nombre</label>
+                    <input id="pollName" name="name" class="poll-field" type="text" maxlength="80" autocomplete="name" required>
+                </div>
+                <div>
+                    <label for="pollChoice" class="mb-2 block font-bold text-turtle-dark">Tu opción favorita</label>
+                    <select id="pollChoice" name="choice" class="poll-field" required>
+                        <option value="" selected disabled>Elige un acuario</option>
+                        <option value="B0FDB43VJL">GOZILLA: tanque, bomba y lámpara</option>
+                        <option value="B0H4PY63JC">YTZPOI: kit de tanque pequeño</option>
+                        <option value="B0H1LCQNMY">LICHENXI: tanque grande con lámpara UV</option>
+                        <option value="B0DD6XDN8T">Gopnaty: tortuguero antiescape</option>
+                    </select>
+                </div>
+                <div class="md:col-span-2">
+                    <label for="pollComment" class="mb-2 block font-bold text-turtle-dark">Comentarios extra <span class="font-normal text-gray-500">(opcional)</span></label>
+                    <textarea id="pollComment" name="comment" class="poll-field" rows="3" maxlength="500" placeholder="Escribe aquí tu mensaje"></textarea>
+                </div>
+                <div class="md:col-span-2 flex flex-col sm:flex-row sm:items-center gap-4">
+                    <button type="submit" class="donate-button !min-h-0 !rounded-lg !px-5 !py-3 !text-base !shadow-none !transform-none text-white font-bold">
+                        <i class="fa-solid fa-paper-plane mr-2" aria-hidden="true"></i> Enviar mi voto
+                    </button>
+                    <p id="pollStatus" class="text-sm text-gray-600" role="status" aria-live="polite"></p>
+                </div>
+            </form>
+
+            <div id="responsesPanel" class="mt-8 border-t border-gray-200 pt-6" hidden>
+                <h3 class="mb-4 text-xl font-heading font-bold text-turtle-dark">Votos y comentarios</h3>
+                <div id="pollSummary" class="mb-5 grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+                <div id="pollResponses" class="space-y-3"></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="support-section py-16 px-4 text-center relative overflow-hidden">
+        <div class="max-w-2xl mx-auto relative z-10 flex flex-col items-center">
+            
+            <p class="support-copy text-xl text-turtle-dark font-medium mb-8 bg-white/60 p-4 rounded-2xl">
+                Cualquier aportación, por más pequeñita que sea, me acerca a mi nueva casita. ¡Si no puedes donar, compartir esta página me ayuda muchísimo! 🐢💕
+            </p>
+            
+            <!-- Botón principal súper llamativo -->
+            <button onclick="openDonationModal()" class="donate-button btn-bubble bg-turtle-emerald text-white font-heading font-bold text-3xl py-5 px-12 rounded-[2rem] flex items-center justify-center space-x-4 border-4 border-green-300">
+                <i class="fa-solid fa-gift animate-bounce-slow"></i>
+                <span>¡Apoyar a mi tortuga!</span>
+            </button>
+        </div>
+    </section>
+
+    <footer class="site-footer bg-turtle-dark text-turtle-light py-8 text-center rounded-t-[3rem] mt-auto border-t-8 border-turtle-emerald">
+        <p class="text-lg font-heading">
+            Hecho con <i class="fa-solid fa-heart text-pink-400 mx-1 animate-pulse"></i> y mucha lechuga.<br>
+            <span class="text-sm font-sans opacity-80 mt-2 block">© 2024 - Todos los derechos reservados.</span>
+        </p>
+    </footer>
+
+    <div id="donationModal" class="fixed inset-0 z-50 flex items-center justify-center hidden p-4" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        
+        <!-- Fondo oscuro semitransparente -->
+        <div class="fixed inset-0 bg-turtle-dark/60 backdrop-blur-sm transition-opacity" onclick="closeDonationModal()"></div>
+
+        <!-- Caja del Modal -->
+        <div class="donation-dialog bg-white rounded-[2rem] overflow-hidden shadow-2xl transform transition-all max-w-md w-full relative z-10 border-4 border-turtle-mint">
+            
+            <!-- Cabecera del Modal -->
+            <div class="bg-turtle-emerald px-6 py-5 flex justify-between items-center text-white">
+                <h3 class="text-2xl font-heading font-bold flex items-center gap-2" id="modal-title">
+                    <span class="text-3xl">🌿</span> ¡Mil Gracias!
+                </h3>
+                <button onclick="closeDonationModal()" class="text-white hover:text-turtle-mint focus:outline-none bg-black/10 rounded-full w-10 h-10 flex items-center justify-center transition-colors">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+
+            <!-- Cuerpo del Modal -->
+            <div class="p-6 md:p-8">
+                <p class="text-gray-600 mb-6 text-center text-lg font-medium">Puedes hacer tu donación mediante transferencia a mi cuenta. ¡Guarda el comprobante!</p>
+                
+                <!-- Datos Bancarios -->
+                <div class="bg-turtle-light border-2 border-turtle-mint rounded-2xl p-5 mb-6 space-y-4 relative overflow-hidden">
+                    <!-- Marca de agua decorativa -->
+                    <i class="fa-solid fa-turtle absolute -bottom-4 -right-4 text-7xl text-turtle-mint/40"></i>
+                    
+                    <div class="relative z-10">
+                        <span class="block text-sm font-black text-turtle-emerald uppercase tracking-wider mb-1">Banco</span>
+                        <span class="block text-gray-800 font-bold text-lg">Santander</span>
+                    </div>
+                    <div class="relative z-10">
+                        <span class="block text-sm font-black text-turtle-emerald uppercase tracking-wider mb-1">Dueño de la tortuga</span>
+                        <span class="block text-gray-800 font-bold text-lg">Galileo San Miguel</span>
+                    </div>
+                    <div class="relative z-10">
+                        <span class="block text-sm font-black text-turtle-emerald uppercase tracking-wider mb-1">CLABE Interbancaria</span>
+                        <div class="bg-white p-3 rounded-xl border border-turtle-mint mt-2 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-sm">
+                            <span class="block text-xl font-bold text-turtle-dark font-mono" id="clabe-number">014580140390402328</span>
+                            
+                            <!-- Botón para copiar -->
+                            <button onclick="copyToClipboard()" class="w-full sm:w-auto bg-turtle-green hover:bg-turtle-emerald text-white font-bold py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 shadow-sm active:scale-95">
+                                <i class="fa-regular fa-copy"></i> Copiar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mensaje de éxito al copiar -->
+                <div id="copySuccessMsg" class="hidden text-center bg-green-100 text-green-700 p-3 rounded-xl font-bold mb-4 border border-green-200 animate-bounce-slow">
+                    <i class="fa-solid fa-check-circle mr-1"></i> ¡CLABE copiada exitosamente!
+                </div>
+
+                <p class="text-base text-gray-500 text-center font-medium bg-gray-50 p-3 rounded-xl">
+                    Concepto sugerido:<br>
+                    <strong class="text-turtle-dark">"Para la casita de la tortuga"</strong> 🐢🏡
+                </p>
+            </div>
+            
+        </div>
+    </div>
+
+    <script>
+        // Elementos del DOM
+        const modal = document.getElementById('donationModal');
+        const modalContent = modal.querySelector('.bg-white');
+
+        const pollStorageKey = 'tortugaPollResponses';
+        const pollOptions = {
+            B0FDB43VJL: 'GOZILLA: tanque, bomba y lámpara',
+            B0H4PY63JC: 'YTZPOI: kit de tanque pequeño',
+            B0H1LCQNMY: 'LICHENXI: tanque grande con lámpara UV',
+            B0DD6XDN8T: 'Gopnaty: tortuguero antiescape'
+        };
+
+        function getPollResponses() {
+            try {
+                const responses = JSON.parse(localStorage.getItem(pollStorageKey) || '[]');
+                return Array.isArray(responses) ? responses : [];
+            } catch (error) {
+                return [];
+            }
+        }
+
+        function addPollText(parent, tagName, className, text) {
+            const element = document.createElement(tagName);
+            element.className = className;
+            element.textContent = text;
+            parent.appendChild(element);
+            return element;
+        }
+
+        function renderPollResponses() {
+            const summary = document.getElementById('pollSummary');
+            const responseList = document.getElementById('pollResponses');
+            const responses = getPollResponses();
+            summary.replaceChildren();
+            responseList.replaceChildren();
+
+            Object.entries(pollOptions).forEach(([optionId, optionName]) => {
+                const votes = responses.filter((response) => response.choice === optionId).length;
+                addPollText(summary, 'p', 'rounded-lg bg-turtle-light px-4 py-3 font-bold text-turtle-dark', `${optionName}: ${votes} ${votes === 1 ? 'voto' : 'votos'}`);
+            });
+
+            if (responses.length === 0) {
+                addPollText(responseList, 'p', 'text-gray-600', 'Todavía no hay respuestas. ¡Sé la primera persona en votar!');
+                return;
+            }
+
+            responses.slice().reverse().forEach((response) => {
+                const item = document.createElement('article');
+                item.className = 'poll-response p-4';
+                addPollText(item, 'p', 'font-bold text-turtle-dark', response.name);
+                addPollText(item, 'p', 'mt-1 text-sm text-gray-600', `Votó por: ${pollOptions[response.choice] || 'Opción no disponible'}`);
+                if (response.comment) {
+                    addPollText(item, 'p', 'mt-2 text-gray-700', response.comment);
+                }
+                responseList.appendChild(item);
+            });
+        }
+
+        document.getElementById('pollForm').addEventListener('submit', (event) => {
+            event.preventDefault();
+            const form = event.currentTarget;
+            const formData = new FormData(form);
+            const response = {
+                name: String(formData.get('name')).trim(),
+                choice: String(formData.get('choice')),
+                comment: String(formData.get('comment') || '').trim(),
+                createdAt: new Date().toISOString()
+            };
+
+            if (!response.name || !pollOptions[response.choice]) {
+                document.getElementById('pollStatus').textContent = 'Escribe tu nombre y selecciona una opción.';
+                return;
+            }
+
+            try {
+                const responses = getPollResponses();
+                responses.push(response);
+                localStorage.setItem(pollStorageKey, JSON.stringify(responses));
+                form.reset();
+                document.getElementById('pollStatus').textContent = '¡Gracias! Tu voto quedó guardado en este navegador.';
+                if (!document.getElementById('responsesPanel').hidden) {
+                    renderPollResponses();
+                }
+            } catch (error) {
+                document.getElementById('pollStatus').textContent = 'No se pudo guardar el voto en este navegador.';
+            }
+        });
+
+        document.getElementById('toggleResponses').addEventListener('click', (event) => {
+            const panel = document.getElementById('responsesPanel');
+            panel.hidden = !panel.hidden;
+            event.currentTarget.innerHTML = panel.hidden
+                ? '<i class="fa-solid fa-users" aria-hidden="true"></i> Ver respuestas'
+                : '<i class="fa-solid fa-eye-slash" aria-hidden="true"></i> Ocultar respuestas';
+            if (!panel.hidden) {
+                renderPollResponses();
+            }
+        });
+        
+        // Función para abrir el modal
+        function openDonationModal() {
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modalContent.classList.add('modal-enter-active');
+                modalContent.classList.remove('modal-leave-active', 'modal-leave');
+            }, 10);
+        }
+
+        // Función para cerrar el modal
+        function closeDonationModal() {
+            modalContent.classList.add('modal-leave-active');
+            modalContent.classList.remove('modal-enter-active');
+            
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                document.getElementById('copySuccessMsg').classList.add('hidden');
+            }, 300);
+        }
+
+        // Función para copiar al portapapeles
+        function copyToClipboard() {
+            const clabeText = document.getElementById('clabe-number').innerText;
+            
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(clabeText).then(() => {
+                    showCopySuccess();
+                });
+            } else {
+                const textArea = document.createElement("textarea");
+                textArea.value = clabeText;
+                textArea.style.position = "absolute";
+                textArea.style.left = "-999999px";
+                document.body.prepend(textArea);
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    showCopySuccess();
+                } catch (error) {
+                    console.error('Error al copiar', error);
+                } finally {
+                    textArea.remove();
+                }
+            }
+        }
+
+        // Mostrar el mensaje de éxito de copiado
+        function showCopySuccess() {
+            const msgElement = document.getElementById('copySuccessMsg');
+            msgElement.classList.remove('hidden');
+            
+            // Ocultar después de 4 segundos
+            setTimeout(() => {
+                msgElement.classList.add('hidden');
+            }, 4000);
+        }
+
+        // Cerrar el modal con la tecla ESC
+        document.addEventListener('keydown', function(event) {
+            if (event.key === "Escape" && !modal.classList.contains('hidden')) {
+                closeDonationModal();
+            }
+        });
+    </script>
+</body>
+</html>
