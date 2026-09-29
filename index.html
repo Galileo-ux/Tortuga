@@ -9,6 +9,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome para los iconos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- Google Fonts: Fredoka (muy juguetona) y Nunito (legible y tierna) -->
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
     
@@ -530,6 +531,7 @@
                     <label for="pollComment" class="mb-2 block font-bold text-turtle-dark">Comentarios extra <span class="font-normal text-gray-500">(opcional)</span></label>
                     <textarea id="pollComment" name="comment" class="poll-field" rows="3" maxlength="500" placeholder="Escribe aquí tu mensaje"></textarea>
                 </div>
+                <p class="md:col-span-2 text-sm text-gray-600">Al enviar, tu nombre, voto y comentario serán visibles para cualquier persona que consulte las respuestas.</p>
                 <div class="md:col-span-2 flex flex-col sm:flex-row sm:items-center gap-4">
                     <button type="submit" class="donate-button !min-h-0 !rounded-lg !px-5 !py-3 !text-base !shadow-none !transform-none text-white font-bold">
                         <i class="fa-solid fa-paper-plane mr-2" aria-hidden="true"></i> Enviar mi voto
@@ -635,22 +637,17 @@
         const modal = document.getElementById('donationModal');
         const modalContent = modal.querySelector('.bg-white');
 
-        const pollStorageKey = 'tortugaPollResponses';
+        const SUPABASE_URL = 'https://TU-PROJECT-ID.supabase.co';
+        const SUPABASE_ANON_KEY = 'TU-CLAVE-PUBLICA';
+        const supabaseClient = SUPABASE_URL.includes('TU-PROJECT-ID') || SUPABASE_ANON_KEY === 'TU-CLAVE-PUBLICA'
+            ? null
+            : window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         const pollOptions = {
             B0FDB43VJL: 'GOZILLA: tanque, bomba y lámpara',
             B0H4PY63JC: 'YTZPOI: kit de tanque pequeño',
             B0H1LCQNMY: 'LICHENXI: tanque grande con lámpara UV',
             B0DD6XDN8T: 'Gopnaty: tortuguero antiescape'
         };
-
-        function getPollResponses() {
-            try {
-                const responses = JSON.parse(localStorage.getItem(pollStorageKey) || '[]');
-                return Array.isArray(responses) ? responses : [];
-            } catch (error) {
-                return [];
-            }
-        }
 
         function addPollText(parent, tagName, className, text) {
             const element = document.createElement(tagName);
@@ -660,24 +657,38 @@
             return element;
         }
 
-        function renderPollResponses() {
+        async function renderPollResponses() {
             const summary = document.getElementById('pollSummary');
             const responseList = document.getElementById('pollResponses');
-            const responses = getPollResponses();
             summary.replaceChildren();
             responseList.replaceChildren();
 
+            if (!supabaseClient) {
+                addPollText(responseList, 'p', 'text-gray-600', 'La encuesta compartida aún no está conectada a Supabase.');
+                return;
+            }
+
+            const { data: responses, error } = await supabaseClient
+                .from('poll_responses')
+                .select('name, choice, comment, created_at')
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                addPollText(responseList, 'p', 'text-red-700', 'No se pudieron cargar las respuestas. Intenta de nuevo más tarde.');
+                return;
+            }
+
             Object.entries(pollOptions).forEach(([optionId, optionName]) => {
-                const votes = responses.filter((response) => response.choice === optionId).length;
+                const votes = (responses || []).filter((response) => response.choice === optionId).length;
                 addPollText(summary, 'p', 'rounded-lg bg-turtle-light px-4 py-3 font-bold text-turtle-dark', `${optionName}: ${votes} ${votes === 1 ? 'voto' : 'votos'}`);
             });
 
-            if (responses.length === 0) {
+            if (!responses || responses.length === 0) {
                 addPollText(responseList, 'p', 'text-gray-600', 'Todavía no hay respuestas. ¡Sé la primera persona en votar!');
                 return;
             }
 
-            responses.slice().reverse().forEach((response) => {
+            responses.forEach((response) => {
                 const item = document.createElement('article');
                 item.className = 'poll-response p-4';
                 addPollText(item, 'p', 'font-bold text-turtle-dark', response.name);
@@ -685,19 +696,22 @@
                 if (response.comment) {
                     addPollText(item, 'p', 'mt-2 text-gray-700', response.comment);
                 }
+                if (response.created_at) {
+                    const date = new Date(response.created_at).toLocaleString('es-MX');
+                    addPollText(item, 'p', 'mt-2 text-xs text-gray-500', date);
+                }
                 responseList.appendChild(item);
             });
         }
 
-        document.getElementById('pollForm').addEventListener('submit', (event) => {
+        document.getElementById('pollForm').addEventListener('submit', async (event) => {
             event.preventDefault();
             const form = event.currentTarget;
             const formData = new FormData(form);
             const response = {
                 name: String(formData.get('name')).trim(),
                 choice: String(formData.get('choice')),
-                comment: String(formData.get('comment') || '').trim(),
-                createdAt: new Date().toISOString()
+                comment: String(formData.get('comment') || '').trim()
             };
 
             if (!response.name || !pollOptions[response.choice]) {
@@ -705,28 +719,34 @@
                 return;
             }
 
-            try {
-                const responses = getPollResponses();
-                responses.push(response);
-                localStorage.setItem(pollStorageKey, JSON.stringify(responses));
-                form.reset();
-                document.getElementById('pollStatus').textContent = '¡Gracias! Tu voto quedó guardado en este navegador.';
-                if (!document.getElementById('responsesPanel').hidden) {
-                    renderPollResponses();
-                }
-            } catch (error) {
-                document.getElementById('pollStatus').textContent = 'No se pudo guardar el voto en este navegador.';
+            const status = document.getElementById('pollStatus');
+            if (!supabaseClient) {
+                status.textContent = 'La encuesta compartida aún no está conectada a la base de datos.';
+                return;
+            }
+
+            status.textContent = 'Enviando tu voto...';
+            const { error } = await supabaseClient.from('poll_responses').insert(response);
+            if (error) {
+                status.textContent = 'No se pudo guardar el voto. Intenta de nuevo.';
+                return;
+            }
+
+            form.reset();
+            status.textContent = '¡Gracias! Tu voto ya está disponible para todas las personas.';
+            if (!document.getElementById('responsesPanel').hidden) {
+                await renderPollResponses();
             }
         });
 
-        document.getElementById('toggleResponses').addEventListener('click', (event) => {
+        document.getElementById('toggleResponses').addEventListener('click', async (event) => {
             const panel = document.getElementById('responsesPanel');
             panel.hidden = !panel.hidden;
             event.currentTarget.innerHTML = panel.hidden
                 ? '<i class="fa-solid fa-users" aria-hidden="true"></i> Ver respuestas'
                 : '<i class="fa-solid fa-eye-slash" aria-hidden="true"></i> Ocultar respuestas';
             if (!panel.hidden) {
-                renderPollResponses();
+                await renderPollResponses();
             }
         });
         
